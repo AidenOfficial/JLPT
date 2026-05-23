@@ -27,14 +27,22 @@
   --radius-md: 10px;
   --ease: cubic-bezier(.32, .72, 0, 1);
 
+  /* 字体链：mac 在前（Hiragino / New York / SF Mono），Windows 现代字体在后，
+     避免落到 MS PMincho / MS UI Gothic 这类老旧 raster 字体。
+     真正跨平台一致需自托管 Noto Serif JP / Noto Sans JP，参见 README. */
   --font-display: 'Hiragino Mincho ProN', 'YuMincho', 'Yu Mincho',
+                  'Yu Mincho Demibold',
                   'Noto Serif CJK JP', 'Noto Serif JP',
+                  'BIZ UDPMincho', 'BIZ UDMincho',
                   'Songti SC', 'STSong', serif;
   --font-latin: 'New York', 'Iowan Old Style', 'Apple Garamond',
-                'Cochin', Georgia, 'Times New Roman', serif;
-  --font-body: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic Medium',
-               -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+                'Cochin', 'Cambria', Georgia, 'Times New Roman', serif;
+  --font-body: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+               'Yu Gothic UI', 'Yu Gothic Medium', 'Yu Gothic',
+               'Meiryo',
+               -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo,
+               'Cascadia Mono', 'Consolas',
                'Sarasa Mono SC', monospace;
 }
 
@@ -52,6 +60,8 @@ body {
   padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "palt" 1, "kern" 1;
   letter-spacing: 0.008em;
   overflow-x: clip;
 }
@@ -1375,6 +1385,21 @@ dialog.sheet::backdrop {
   text-transform: uppercase;
   margin-right: 8px;
 }
+
+/* ============================================================
+   滚动条：Windows / Linux Chromium 默认 17px 灰条会破坏墨と朱的克制
+   感；macOS Safari 用原生 overlay 滚动条，本规则不会被识别。
+   ============================================================ */
+* { scrollbar-width: thin; scrollbar-color: var(--text-faint) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--text-faint);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); background-clip: padding-box; }
 
 /* ============================================================
    触屏设备：扩大点击判定（不改变视觉尺寸）

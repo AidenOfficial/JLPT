@@ -6,6 +6,27 @@
 <meta name="theme-color" content="#0a0908">
 <title>Aiden · 日本語復習</title>
 <link rel="stylesheet" href="styles.css">
+<!-- 非 Apple 平台：早期注入 Zen 字体（jsDelivr）；Apple 走 Hiragino，本块 no-op -->
+<script>
+(function(){
+  var p = navigator.platform || '', u = navigator.userAgent || '';
+  if (/Mac|iPhone|iPad|iPod/.test(p) || /Macintosh|iPhone|iPad/.test(u)) return;
+  var pre = document.createElement('link');
+  pre.rel = 'preconnect'; pre.href = 'https://cdn.jsdelivr.net'; pre.crossOrigin = '';
+  document.head.appendChild(pre);
+  var CDN = 'https://cdn.jsdelivr.net/npm/@fontsource/';
+  ['zen-old-mincho@5/500.css',
+   'zen-old-mincho@5/700.css',
+   'zen-kaku-gothic-new@5/400.css',
+   'zen-kaku-gothic-new@5/500.css',
+   'eb-garamond@5/latin-400-italic.css'].forEach(function(path){
+    var l = document.createElement('link');
+    l.rel = 'stylesheet'; l.href = CDN + path;
+    l.setAttribute('data-webfont', '1');
+    document.head.appendChild(l);
+  });
+})();
+</script>
 </head>
 <body>
 
@@ -98,6 +119,8 @@
 <script defer src="data/grammar-stance.js"></script>
 <script defer src="data/grammar-manner.js"></script>
 <script defer src="data/grammar-possibility.js"></script>
+<!-- Web 字体加载控制（Apple 跳过；其他平台等下一次页面变化时切换） -->
+<script defer src="js/fonts.js"></script>
 <!-- 引擎与共享 -->
 <script defer src="js/engine.js"></script>
 <script defer src="js/state.js"></script>

@@ -46,6 +46,26 @@
                'Sarasa Mono SC', monospace;
 }
 
+/* Web 字体到位后由 js/fonts.js 加 .fonts-loaded class；
+   Apple 平台永远不加（Hiragino 本身即是终点），其他平台在下一次
+   #mount 内容变化的瞬间同步切换，避免凝视同一界面时字突然变样。 */
+html.fonts-loaded {
+  --font-display: 'Zen Old Mincho',
+                  'Hiragino Mincho ProN', 'YuMincho', 'Yu Mincho',
+                  'Yu Mincho Demibold',
+                  'Noto Serif CJK JP', 'Noto Serif JP',
+                  'BIZ UDPMincho', 'BIZ UDMincho',
+                  'Songti SC', 'STSong', serif;
+  --font-body: 'Zen Kaku Gothic New',
+               'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+               'Yu Gothic UI', 'Yu Gothic Medium', 'Yu Gothic',
+               'Meiryo',
+               -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-latin: 'EB Garamond',
+                'New York', 'Iowan Old Style', 'Apple Garamond',
+                'Cochin', 'Cambria', Georgia, 'Times New Roman', serif;
+}
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; padding: 0; }
 html { background: var(--ink); }

@@ -19,11 +19,9 @@ const MODES = {
 };
 
 let rootEl   = null;
-let currentQ = null;        // { pattern, mode, item, itemIndex, options?, displayTokens? }
+let currentQ = null;        // { pattern, mode, item, itemIndex, options?, displayTokens?, arrangement? }
 let feedback = null;
 let forcedNext = null;
-// scramble 用：
-let arrangement = [];       // 长度 = tokens.length，元素是 token index 或 null
 let userPick = null;        // cloze 用户选择的 patternId
 
 function patternById(id) { return GRAMMAR.find(g => g.id === id); }
@@ -101,10 +99,10 @@ function buildQuestion(pattern, mode, itemIndex) {
     ]);
     return { pattern, mode, item, itemIndex, options };
   } else {
-    // scramble：打乱显示顺序
+    // scramble：打乱显示顺序；arrangement 收进 currentQ，保证每题状态独立
     const displayTokens = shuffle(item.tokens.map((text, idx) => ({ text, idx })));
-    arrangement = new Array(item.tokens.length).fill(null);
-    return { pattern, mode, item, itemIndex, displayTokens };
+    const arrangement = new Array(item.tokens.length).fill(null);
+    return { pattern, mode, item, itemIndex, displayTokens, arrangement };
   }
 }
 
@@ -123,11 +121,12 @@ function submitCloze() {
 
 function submitScramble() {
   if (!currentQ) return;
-  if (arrangement.some(x => x == null)) return;
-  // arrangement[i] 应该等于 i（tokens 原本就是按正确顺序排列的）
-  const correct = arrangement.every((tokIdx, i) => tokIdx === i);
+  const arr = currentQ.arrangement;
+  if (arr.some(x => x == null)) return;
+  // arr[i] 应该等于 i（tokens 原本就是按正确顺序排列的）
+  const correct = arr.every((tokIdx, i) => tokIdx === i);
   recordResult(correct);
-  feedback = { correct, arrangement: arrangement.slice() };
+  feedback = { correct, arrangement: arr.slice() };
   State.save();
   render();
   App.refreshStatus();
@@ -339,7 +338,7 @@ function renderClozeFeedback() {
 
 /* ====================== Scramble 渲染 ====================== */
 function renderScramble() {
-  const { pattern, item, displayTokens } = currentQ;
+  const { pattern, item, displayTokens, arrangement } = currentQ;
   const slotsHtml = arrangement.map((tokIdx, i) => {
     if (tokIdx == null) {
       return `<button class="slot empty" data-slot="${i}" data-idx="${i+1}" type="button"></button>`;
@@ -430,17 +429,18 @@ function bindEvents() {
       t.addEventListener('click', e => {
         if (t.classList.contains('used')) return;
         const tokIdx = +t.dataset.bank;
+        const arr = currentQ.arrangement;
         // 找第一个空 slot
-        const slotI = arrangement.findIndex(x => x == null);
+        const slotI = arr.findIndex(x => x == null);
         if (slotI < 0) return;
-        arrangement[slotI] = tokIdx;
+        arr[slotI] = tokIdx;
         render();
       });
     });
     rootEl.querySelectorAll('.slot.filled').forEach(s => {
       s.addEventListener('click', () => {
         const slotI = +s.dataset.slot;
-        arrangement[slotI] = null;
+        currentQ.arrangement[slotI] = null;
         render();
       });
     });
@@ -448,7 +448,7 @@ function bindEvents() {
     if (sub) sub.addEventListener('click', submitScramble);
     const rb = rootEl.querySelector('#reset-btn');
     if (rb) rb.addEventListener('click', () => {
-      arrangement = arrangement.map(() => null);
+      currentQ.arrangement.fill(null);
       render();
     });
   }

@@ -11,7 +11,7 @@
   --text:       #ebe5d8;
   --text-2:     #b8b09f;
   --text-3:     #847b6c;
-  --text-dim:   #5e564a;
+  --text-dim:   #7a6f5e;
   --text-faint: #3d362e;
   --paper:      #f5f0e6;
   --vermillion:        #c84a39;
@@ -53,7 +53,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: 0.008em;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 body::before {
   content: '';
@@ -337,8 +337,8 @@ main {
   font-family: var(--font-display); font-size: 16px;
   margin: 0 4px; vertical-align: middle;
 }
-.q-zh::before { content: '〝'; }
-.q-zh::after  { content: '〟'; }
+.q-zh::before { content: '「'; }
+.q-zh::after  { content: '」'; }
 .q-zh.empty { visibility: hidden; }
 
 /* ============================================================
@@ -636,7 +636,7 @@ input[type="text"]::placeholder {
   text-align: left;
   letter-spacing: 0.04em;
   padding: 14px 0 4px;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 .grammar-stem .blank {
   display: inline-block;
@@ -882,6 +882,7 @@ input[type="text"]::placeholder {
   margin-top: 4px;
 }
 .btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 10px 18px;
   font-family: var(--font-display);
   font-size: 13px;
@@ -894,6 +895,7 @@ input[type="text"]::placeholder {
   transition: all 0.15s;
 }
 .btn-secondary:hover { color: var(--text); border-color: var(--text-dim); }
+.btn-secondary svg { display: block; }
 
 /* ============================================================
    错题复习
@@ -1012,12 +1014,6 @@ input[type="text"]::placeholder {
 .review-actions .actions-right {
   display: flex; gap: 8px; flex-wrap: wrap;
 }
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-secondary svg { display: block; }
 .btn-secondary.accent {
   color: var(--vermillion);
   border-color: var(--vermillion-border);
@@ -1378,4 +1374,26 @@ dialog.sheet::backdrop {
   color: var(--vermillion);
   text-transform: uppercase;
   margin-right: 8px;
+}
+
+/* ============================================================
+   触屏设备：扩大点击判定（不改变视觉尺寸）
+   ============================================================ */
+@media (hover: none) and (pointer: coarse) {
+  .icon-btn { width: 44px; height: 44px; }
+  .chip { min-height: 40px; padding-top: 10px; padding-bottom: 10px; }
+  .q-chip { min-height: 32px; padding-top: 8px; padding-bottom: 8px; }
+  .toggle-row { min-height: 44px; }
+}
+
+/* ============================================================
+   前庭敏感用户：尊重系统减少动效设置
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

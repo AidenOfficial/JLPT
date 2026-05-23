@@ -113,9 +113,15 @@ function load() {
     console.warn('[state] 读取失败，使用默认状态', e);
   }
 }
+let _saveWarned = false;
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  catch (e) {}
+  catch (e) {
+    if (!_saveWarned) {
+      _saveWarned = true;
+      console.warn('[state] localStorage 写入失败（隐私模式 / 配额满 / 不可用），后续答题进度将不会被保存。', e);
+    }
+  }
 }
 function reset() {
   try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}

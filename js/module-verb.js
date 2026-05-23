@@ -75,7 +75,8 @@ function pickNext() {
     if (cands.length > 0) {
       const mk = cands[Math.floor(Math.random() * cands.length)];
       const w = pool.find(v => v.dict === mk.wordDict);
-      return { word: w, target: mk.target };
+      if (w) return { word: w, target: mk.target };
+      // 词被当前过滤排除则跳过，落入正常出题
     }
   }
 
@@ -221,6 +222,7 @@ function render() {
           <div class="input-side">答</div>
           <input id="answer-input" type="text" inputmode="text" autocomplete="off"
                  autocapitalize="off" autocorrect="off" spellcheck="false"
+                 enterkeyhint="send"
                  placeholder="活用形を入力（汉字 or 仮名）">
           <button class="submit-btn" id="submit-btn" type="button">問<span class="arrow">→</span></button>
         </div>

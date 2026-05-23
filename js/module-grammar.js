@@ -33,7 +33,8 @@ function patternById(id) { return GRAMMAR.find(g => g.id === id); }
    ============================================================ */
 function pickDistractors(correct, n) {
   n = n || 3;
-  const same = shuffle(GRAMMAR.filter(g => g.cluster === correct.cluster && g.id !== correct.id));
+  const same = shuffle(GRAMMAR.filter(g =>
+    correct.cluster && g.cluster === correct.cluster && g.id !== correct.id));
   const distractors = same.slice(0, n);
   if (distractors.length < n) {
     const others = shuffle(GRAMMAR.filter(g => g.cluster !== correct.cluster && g.id !== correct.id));
@@ -75,7 +76,9 @@ function pickNext() {
     if (cands.length > 0) {
       const mk = cands[Math.floor(Math.random() * cands.length)];
       const p = patternById(mk.patternId);
-      return buildQuestion(p, mk.mode, mk.itemIndex);
+      const q = buildQuestion(p, mk.mode, mk.itemIndex);
+      if (q) return q;
+      // itemIndex 因语料更新越界 → 回退到正常出题
     }
   }
 
@@ -85,7 +88,9 @@ function pickNext() {
 
 function buildQuestion(pattern, mode, itemIndex) {
   const arr = mode === 'cloze' ? pattern.cloze : pattern.scramble;
+  if (!arr || !arr.length) return null;
   if (itemIndex == null) itemIndex = Math.floor(Math.random() * arr.length);
+  if (itemIndex < 0 || itemIndex >= arr.length) return null;
   const item = arr[itemIndex];
 
   if (mode === 'cloze') {
@@ -153,6 +158,7 @@ function nextQuestion() {
   if (forcedNext) {
     currentQ = buildQuestion(patternById(forcedNext.patternId), forcedNext.mode, forcedNext.itemIndex);
     forcedNext = null;
+    if (!currentQ) currentQ = pickNext();
   } else {
     currentQ = pickNext();
   }
@@ -163,7 +169,10 @@ function nextQuestion() {
 }
 
 function startReviewMistake(m) {
-  if (!patternById(m.patternId)) return false;
+  const p = patternById(m.patternId);
+  if (!p) return false;
+  const arr = m.mode === 'cloze' ? (p.cloze || []) : (p.scramble || []);
+  if (m.itemIndex == null || m.itemIndex < 0 || m.itemIndex >= arr.length) return false;
   forcedNext = m;
   if (!rootEl) return true;
   nextQuestion();
@@ -232,8 +241,11 @@ function renderCloze() {
     } else if (i === userPick) {
       cls = 'selected';
     }
+    const checked = i === userPick ? 'true' : 'false';
     optsHtml += `
-      <button class="choice ${cls}" data-i="${i}" type="button" ${feedback ? 'disabled' : ''}>
+      <button class="choice ${cls}" data-i="${i}" type="button"
+              role="radio" aria-checked="${checked}"
+              ${feedback ? 'disabled' : ''}>
         <span class="marker">${'ABCD'[i]}.</span>${escapeHtml(opt.pattern.pattern)}
         ${ann}
       </button>`;
@@ -242,7 +254,7 @@ function renderCloze() {
   let html = `
     <div class="grammar-stem">${sentHtml}</div>
     <div class="grammar-zh">${escapeHtml(item.zh || '')}</div>
-    <div class="choices">${optsHtml}</div>
+    <div class="choices" role="radiogroup" aria-label="選択肢">${optsHtml}</div>
   `;
 
   if (!feedback) {
@@ -399,9 +411,13 @@ function bindEvents() {
       btn.addEventListener('click', e => {
         const i = +btn.dataset.i;
         userPick = i;
-        // 局部更新 selected class
-        rootEl.querySelectorAll('.choice').forEach(b => b.classList.remove('selected'));
+        // 局部更新 selected class + aria-checked
+        rootEl.querySelectorAll('.choice').forEach(b => {
+          b.classList.remove('selected');
+          b.setAttribute('aria-checked', 'false');
+        });
         btn.classList.add('selected');
+        btn.setAttribute('aria-checked', 'true');
         const sub = rootEl.querySelector('#submit-btn');
         if (sub) sub.disabled = false;
       });
@@ -451,6 +467,7 @@ function mount(root) {
     forcedNext = null;
     feedback = null;
     userPick = null;
+    if (!currentQ) currentQ = pickNext();
   } else if (!currentQ) {
     currentQ = pickNext();
   }

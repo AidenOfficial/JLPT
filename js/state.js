@@ -33,7 +33,7 @@ function defaultState() {
       verb: {
         levels: { N5:true, N4:true, N3:false, N2:false },
         types:  { godan:true, ichidan:true, suru:true, kuru:true },
-        conjs:  Object.fromEntries(Engine.CONJ_LIST.map(c => [c.key, true])),
+        conjs:  Object.fromEntries(((global.Engine && global.Engine.CONJ_LIST) || []).map(c => [c.key, true])),
         answered: 0, correct: 0, streak: 0,
         byConj: {}, byType: {}, weight: {}, mistakes: [],
       },

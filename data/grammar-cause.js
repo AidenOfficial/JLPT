@@ -366,7 +366,7 @@ window.GRAMMAR = (window.GRAMMAR || []).concat([
     cloze: [
       { sentence: '経験不足___、ミスを犯してしまった。', zh: '因为经验不足，犯了错误。' },
       { sentence: '彼は天才である___、孤独だった。', zh: '正因为他是天才，所以孤独。' },
-      { sentence: '人間は考える___に人間である。', zh: '人正因思考才成为人。' },
+      { sentence: '人間は考える___、人間である。', zh: '人正因思考才成为人。' },
     ],
     scramble: [
       { tokens: ['若さ', 'ゆえに', '無謀な', '行動を', 'とってしまった'], pattern_index: 1,

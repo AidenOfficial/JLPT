@@ -87,12 +87,18 @@ function buildChips(elOrId, items, isActive, onToggle, getLabel, getValAttr) {
   if (!el) return;
   el.innerHTML = '';
   items.forEach(it => {
-    const span = document.createElement('span');
-    span.className = 'chip' + (isActive(it) ? ' active' : '');
-    span.textContent = getLabel(it);
-    if (getValAttr) span.setAttribute('data-val', getValAttr(it));
-    span.addEventListener('click', () => onToggle(it, span));
-    el.appendChild(span);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    const active = isActive(it);
+    btn.className = 'chip' + (active ? ' active' : '');
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    btn.textContent = getLabel(it);
+    if (getValAttr) btn.setAttribute('data-val', getValAttr(it));
+    btn.addEventListener('click', () => {
+      onToggle(it, btn);
+      btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
+    });
+    el.appendChild(btn);
   });
 }
 

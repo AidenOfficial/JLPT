@@ -204,23 +204,32 @@ function renderSettings() {
   toggles.forEach(t => {
     const row = document.createElement('div');
     row.className = 'toggle-row';
+    row.setAttribute('role', 'switch');
+    row.setAttribute('tabindex', '0');
+    row.setAttribute('aria-checked', s.ui[t.key] ? 'true' : 'false');
+    row.setAttribute('aria-label', t.label);
     row.innerHTML = `
       <div>
         <div class="label">${t.label}</div>
         <div class="desc">${t.desc}</div>
       </div>
-      <div class="toggle ${s.ui[t.key] ? 'on' : ''}"></div>
+      <div class="toggle ${s.ui[t.key] ? 'on' : ''}" aria-hidden="true"></div>
     `;
     const tog = row.querySelector('.toggle');
-    row.addEventListener('click', () => {
+    const flip = () => {
       s.ui[t.key] = !s.ui[t.key];
       tog.classList.toggle('on', s.ui[t.key]);
+      row.setAttribute('aria-checked', s.ui[t.key] ? 'true' : 'false');
       State.save();
       // 影响显示的开关需重渲当前模块
       const m = MODULES[activeKey]();
       if (m && m.mount && rootElCache()) {
         m.mount(rootElCache());
       }
+    };
+    row.addEventListener('click', flip);
+    row.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
     });
     togglesEl.appendChild(row);
   });

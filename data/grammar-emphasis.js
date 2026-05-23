@@ -361,31 +361,6 @@ window.GRAMMAR = (window.GRAMMAR || []).concat([
     ],
   },
   {
-    id: 'tositemo',
-    pattern: '〜としても',
-    group: 'emphasis',
-    cluster: 'hypothetical',
-    level: 'N2',
-    setsuzoku: 'N / V・A普通形 + としても',
-    meaning_zh: '即使…也…；就算…也…',
-    nuance_zh: '假设极端情况，强调"哪怕这样结论也不变"，比「ても」更带"作为这种情形来看"的论述口吻。',
-    examples: [
-      { jp: '冗談だとしても、言っていいことと悪いことがある。', zh: '就算是开玩笑，也有该说和不该说的。' },
-      { jp: 'たとえ高くても、いいものなら買う。', zh: '即使再贵，是好东西就会买。' },
-    ],
-    cloze: [
-      { sentence: '彼の話が本当だ___、私には関係ない。', zh: '即使他说的是真的，也跟我无关。' },
-      { sentence: 'たとえ失敗した___、後悔はしない。', zh: '即使失败了也不后悔。' },
-      { sentence: 'いくら忙しい___、家族との時間は大切にしたい。', zh: '不管多忙，也想珍惜和家人的时间。' },
-    ],
-    scramble: [
-      { tokens: ['冗談', 'だとしても', '言って', 'いいことと', '悪いことがある'], pattern_index: 1,
-        zh: '即使是玩笑，也有该说和不该说的。' },
-      { tokens: ['たとえ', '高い', 'としても', 'いいものなら買う'], pattern_index: 2,
-        zh: '即使再贵，是好东西就会买。' },
-    ],
-  },
-  {
     id: 'mono-ga-aru',
     pattern: '〜ものがある',
     group: 'emphasis',

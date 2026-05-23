@@ -270,7 +270,10 @@ function render() {
   if (inp) {
     setTimeout(() => inp.focus(), 30);
     inp.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); submitAnswer(); }
+      // IME 转换中 Enter 是"确认变换"而非提交（Windows/macOS 输入日文场景）
+      if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) {
+        e.preventDefault(); submitAnswer();
+      }
     });
     rootEl.querySelector('#submit-btn').addEventListener('click', submitAnswer);
   }

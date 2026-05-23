@@ -359,9 +359,9 @@ function init() {
     refreshStatus();
   });
 
-  // 全局 Enter — 反馈后下一题
+  // 全局 Enter — 反馈后下一题；IME 转换中的 Enter 不应触发
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter') return;
+    if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
     if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
     if (document.querySelector('dialog[open]')) return;
     const m = MODULES[activeKey]();

@@ -130,11 +130,6 @@ function bumpWeight(weightMap, key, correct) {
   if (correct) weightMap[key] = Math.max(0.25, (weightMap[key] || 1) / 2);
   else         weightMap[key] = Math.min(8,    (weightMap[key] || 1) * 2);
 }
-function recordResult(modKey, dim, correct) {
-  const m = state.modules[modKey];
-  const bucketKey = 'by' + dim.charAt(0).toUpperCase() + dim.slice(1);
-  if (!m[bucketKey]) m[bucketKey] = {};
-}
 function logAnswer(modKey, correct, dims) {
   // dims: { conj: 'te', type: 'godan' } 或 { group: 'concession', mode: 'cloze' }
   const m = state.modules[modKey];

@@ -377,7 +377,7 @@ window.GRAMMAR = (window.GRAMMAR || []).concat([
   },
 
   {
-    id: 'teno-koto',
+    id: 'atteno',
     pattern: '〜あっての〜',
     group: 'cause',
     cluster: 'cause_formal',

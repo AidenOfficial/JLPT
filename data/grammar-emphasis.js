@@ -336,7 +336,7 @@ window.GRAMMAR = (window.GRAMMAR || []).concat([
     ],
   },
   {
-    id: 'koto-wa-koto-da',
+    id: 'kotowakotoga',
     pattern: '〜ことは〜が',
     group: 'emphasis',
     cluster: 'qualified_admit',

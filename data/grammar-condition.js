@@ -234,7 +234,7 @@ window.GRAMMAR = (window.GRAMMAR || []).concat([
 
   // ===== condition_hypothesis =====
   {
-    id: 'monoanra',
+    id: 'mononara',
     pattern: '〜ものなら',
     group: 'condition',
     cluster: 'condition_hypothesis',
@@ -259,7 +259,7 @@ window.GRAMMAR = (window.GRAMMAR || []).concat([
     ],
   },
   {
-    id: 'youmonoanra',
+    id: 'youmononara',
     pattern: '〜ようものなら',
     group: 'condition',
     cluster: 'condition_hypothesis',

@@ -48,7 +48,7 @@ body {
   color: var(--text);
   font-size: 15px;
   line-height: 1.6;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -436,6 +436,19 @@ input[type="text"] {
   border-radius: 0;
 }
 input[type="text"]:focus { outline: none; border-bottom-color: var(--vermillion); }
+
+/* 键盘可达：所有自定义控件统一焦点环（朱色，与点击高亮一致） */
+.q-chip:focus-visible,
+.chip:focus-visible,
+.choice:focus-visible,
+.slot:focus-visible,
+.token:focus-visible,
+.icon-btn:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--vermillion);
+  outline-offset: 2px;
+}
+input[type="text"]:focus-visible { outline: none; }
 input[type="text"]::placeholder {
   color: var(--text-faint);
   font-family: var(--font-body);

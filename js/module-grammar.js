@@ -210,15 +210,15 @@ function render() {
 /* ====================== Cloze 渲染 ====================== */
 function renderCloze() {
   const { pattern, item, options } = currentQ;
-  // 把 ___ 替换成 blank 占位
+  // 把 ___ 替换成 blank 占位（配对文型如 やら〜やら / にしろ〜にせよ 等会有 2 个 ___）
   let sentHtml;
   if (!feedback) {
-    sentHtml = escapeHtml(item.sentence).replace('___',
-      '<span class="blank" id="blank-slot">　　　　</span>');
+    sentHtml = escapeHtml(item.sentence).replaceAll('___',
+      '<span class="blank">　　　　</span>');
   } else {
-    // 用 pattern 填上空（高亮）
+    // 用 pattern 填上空（高亮）— 多 ___ 时所有空均填入同一文型
     const filled = `<span class="blank filled">${escapeHtml(pattern.pattern.replace(/^〜/, ''))}</span>`;
-    sentHtml = escapeHtml(item.sentence).replace('___', filled);
+    sentHtml = escapeHtml(item.sentence).replaceAll('___', filled);
   }
 
   let optsHtml = '';

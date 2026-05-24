@@ -4,8 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="theme-color" content="#0a0908">
+<meta name="description" content="個人 N5–N2 復習工具 · 動詞活用 / N2 文型 / 試験 / 復習">
 <title>Aiden · 日本語復習</title>
 <link rel="stylesheet" href="styles.css">
+<!-- PWA -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="日本語復習">
 <!-- 非 Apple 平台：早期注入 Zen 字体（jsDelivr）；Apple 走 Hiragino，本块 no-op -->
 <script>
 (function(){
@@ -128,9 +136,20 @@
 <!-- 各模块 -->
 <script defer src="js/module-verb.js"></script>
 <script defer src="js/module-grammar.js"></script>
+<script defer src="js/module-test.js"></script>
 <script defer src="js/module-review.js"></script>
 <!-- 编排器（最后） -->
 <script defer src="js/app.js"></script>
+
+<!-- PWA · Service Worker 注册（file:// 跳过；SW 仅在 http(s) 下可用） -->
+<script>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('service-worker.js')
+      .catch(function(e){ console.warn('[sw] register failed', e); });
+  });
+}
+</script>
 
 </body>
 </html>

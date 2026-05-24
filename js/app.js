@@ -15,9 +15,10 @@ const { buildChips, openDialog, closeDialog, bindDialog, escapeHtml } = global.U
 const MODULES = {
   verb:    () => global.ModuleVerb,
   grammar: () => global.ModuleGrammar,
+  test:    () => global.ModuleTest,
   review:  () => global.ModuleReview,
 };
-const MODULE_ORDER = ['verb', 'grammar', 'review'];
+const MODULE_ORDER = ['verb', 'grammar', 'test', 'review'];
 
 let activeKey = 'verb';
 let mountEl  = null;
@@ -112,6 +113,7 @@ function renderQuickRow() {
     });
     wrap.style.display = '';
   } else {
+    // review / test：无快速过滤
     wrap.style.display = 'none';
   }
 }
@@ -135,7 +137,9 @@ function renderSettings() {
     verbSecs.forEach(id => { const el = sec(id); if (el) el.style.display = 'none'; });
     gramSecs.forEach(id => { const el = sec(id); if (el) el.style.display = ''; });
   } else {
-    // review：都不显示，只显示 UI 选项
+    // review / test：不显示模块过滤区，只显示通用 UI toggles
+    // test 模块的题数 / 来源在卡片内的「設定」面板里配置；
+    // 试题池继承 verb / grammar 模块的筛选
     [...verbSecs, ...gramSecs].forEach(id => { const el = sec(id); if (el) el.style.display = 'none'; });
   }
 
@@ -256,6 +260,33 @@ function refreshStatus() {
       <span class="sep">·</span>
       <span>誤 ${st.mistakes}</span>
     `;
+    return;
+  }
+  if (activeKey === 'test') {
+    // running 显示进度 + 当前正答率；其他状态显示上次成绩
+    if (st._phase === 'running') {
+      const a = st.answered, c = st.correct;
+      const p = a ? Math.round(c * 100 / a) : 0;
+      const pCls = a < 3 ? '' : p < 60 ? 'bad' : p < 85 ? '' : 'good';
+      el.innerHTML = `
+        <span>${String(st._idx + 1).padStart(2, '0')} / ${st._total}</span>
+        <span class="sep">·</span>
+        <span class="pct ${pCls}">${p}%</span>
+      `;
+    } else if (st._phase === 'done' || st.answered > 0) {
+      const p = st.answered ? Math.round(st.correct * 100 / st.answered) : 0;
+      const pCls = p < 60 ? 'bad' : p < 85 ? '' : 'good';
+      el.innerHTML = `
+        <span>前回</span>
+        <span class="sep">·</span>
+        <span>${st.correct} / ${st.answered}</span>
+        <span class="sep">·</span>
+        <span class="pct ${pCls}">${p}%</span>
+      `;
+    } else {
+      el.innerHTML = `<span>試験モード · 設定中</span>`;
+    }
+    renderModuleNav();
     return;
   }
   el.innerHTML = `

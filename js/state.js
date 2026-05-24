@@ -43,6 +43,13 @@ function defaultState() {
         answered: 0, correct: 0, streak: 0,
         byGroup: {}, byMode: {}, weight: {}, mistakes: [],
       },
+      test: {
+        config: {
+          count: 20,
+          sources: { verb: true, grammar: true },
+        },
+        lastResult: null,
+      },
     },
   };
 }
@@ -68,6 +75,14 @@ function mergeDefaults(loaded) {
     if (!out.modules[k].weight)  out.modules[k].weight  = {};
     if (!out.modules[k].mistakes) out.modules[k].mistakes = [];
   }
+  // test 子模块的嵌套 config / sources 单独深合并（结构与 verb/grammar 不同）
+  const dt = def.modules.test;
+  const lt = (loaded.modules || {}).test || {};
+  out.modules.test = {
+    config: Object.assign({}, dt.config, lt.config || {}),
+    lastResult: lt.lastResult || null,
+  };
+  out.modules.test.config.sources = Object.assign({}, dt.config.sources, (lt.config || {}).sources || {});
   return out;
 }
 

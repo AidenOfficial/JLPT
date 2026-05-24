@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#0a0908"/>
+  <g transform="rotate(-3 256 256)">
+    <rect x="138" y="138" width="236" height="236" rx="10" fill="#c84a39"/>
+    <text x="256" y="318"
+          font-family="'Hiragino Mincho ProN','YuMincho','Yu Mincho','Noto Serif CJK JP','Noto Serif JP',serif"
+          font-size="180"
+          font-weight="400"
+          fill="#f5f0e6"
+          text-anchor="middle">和</text>
+  </g>
+  <rect x="56" y="56" width="48" height="2" fill="#c84a39"/>
+  <rect x="56" y="56" width="2" height="48" fill="#c84a39"/>
+</svg>

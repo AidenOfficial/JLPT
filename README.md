@@ -7,16 +7,17 @@ Local and PWA-ready.
 
 ## 是什么 · What it is
 
-四个模块，覆盖 N5–N2 的复习节奏：
+五个模块，覆盖 N5–N2 的复习节奏：
 
-4 Part that cover the JLPT N5-N2.
+5 modules covering JLPT N5–N2.
 
 | 模块 | 内容 |
 |---|---|
 | **動詞活用** Verbs | 五段 / 一段 / する / 来る × 15 种活用形（ます・て・た・ない・可能・意志・命令・禁止・ば・たら・受身・使役・使役受身・尊敬・謙譲）。判分接受汉字与假名，引擎按规则推导而**不存任何活用结果**。 |
-| **N2 文型** Grammar | 10 个功能组、上百个文型；两种题型：穴埋め（4 选 1 辨析，干扰项从同 cluster 抽）+ 並べ替え（token bank 排序）。 |
+| **文型** Grammar | 10 个功能组、564 个文型（N5 86 / N4 103 / N3 143 / N2 232）；两种题型：穴埋め（4 选 1 辨析，干扰项从同 cluster 抽）+ 並べ替え（token bank 排序）。N5–N4 仅闪卡数据，无穴埋め / 並べ替え 题目。 |
+| **学習** Learn | 闪卡模式：新卡正反同显 → 「未掌握」入复习池 / 「已掌握」永久跳过；复习卡先盖住 → 翻面后「まだ」(weight ×2 留池) / 「覚えた」(移出)。回顾窗里两路：「開始復習」+ 「履歴を見る」(掌握 / 未掌握清单)。**不依赖真实时间**——Web 没主动推送，硬上 Ebbinghaus 会塌成"积压式洪水"，故只保留弱 SRS（按错过次数加权）。 |
 | **試験** Test | 限定题数（10/20/30/50）+ 混合 verb / grammar。中途无即时反馈、末尾出成绩单 + 逐题清单 + 自动写回各模块错题本。 |
-| **復習** Review | 聚合错题，点条直达原题，按时间倒序。一键导出 Markdown 上下文（含统计 + 弱点 + 错题明细）给 AI 助手做诊断。 |
+| **復習** Review | 聚合 verb / grammar 错题，点条直达原题，按时间倒序。一键导出 Markdown 上下文（含统计 + 弱点 + 错题明细）给 AI 助手做诊断。 |
 
 ---
 
@@ -65,7 +66,9 @@ icon.svg                墨と朱「和」字印章
 data/
   verbs.js              window.VERBS
   grammar.js            window.GRAMMAR_GROUPS + 空的 window.GRAMMAR
-  grammar-<group>.js    各功能组分别 push 到 window.GRAMMAR
+  grammar-<group>.js    各功能组分别 push 到 window.GRAMMAR（含 N2 完整 cloze/scramble）
+  grammar-n<5..3>.js    闪卡专用 — N5/N4/N3 等级补全；只含核心字段无 cloze/scramble
+  grammar-n2-extra.js   N2 大纲补遗
 js/
   fonts.js              非 Apple 平台的 web font 切换控制
   engine.js             window.Engine — 活用引擎（规则推导，含 self-test）
@@ -73,6 +76,7 @@ js/
   ui-shared.js          window.UI — escapeHtml / withRuby / dialog / chips / toast / 剪贴板
   module-verb.js        window.ModuleVerb
   module-grammar.js     window.ModuleGrammar
+  module-learn.js       window.ModuleLearn — 闪卡 + 弱 SRS
   module-test.js        window.ModuleTest
   module-review.js      window.ModuleReview
   app.js                window.App — 模块编排 / nav / 设置 / 状态条
@@ -82,7 +86,7 @@ js/
 
 ## 模块契约 · Module contract
 
-`app.js` 通过统一接口在 4 个模块间切换：
+`app.js` 通过统一接口在 5 个模块间切换：
 
 ```js
 {
@@ -141,7 +145,8 @@ js/
 
 - 全部存 `localStorage[jp_reviewer_v4]`
 - 旧版本数据：v3 → v4 自动迁移
-- **SRS-lite**：答错 → weight ×2（cap 8）；答对 → weight ÷2（floor 0.25）。出题用 `UI.weightedPick` 加权抽样。
+- **SRS-lite** (verb / grammar)：答错 → weight ×2（cap 8）；答对 → weight ÷2（floor 0.25）。出题用 `UI.weightedPick` 加权抽样。
+- **学習弱 SRS**：复习卡选"还不会" → weight ×2（cap 8）；"已掌握" → 移出 learning 池。不依赖真实时间。
 - 错题：顶部插入，截 200 条；同题答对会自动从错题集移除。
 
 ---

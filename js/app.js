@@ -15,10 +15,11 @@ const { buildChips, openDialog, closeDialog, bindDialog, escapeHtml } = global.U
 const MODULES = {
   verb:    () => global.ModuleVerb,
   grammar: () => global.ModuleGrammar,
+  learn:   () => global.ModuleLearn,
   test:    () => global.ModuleTest,
   review:  () => global.ModuleReview,
 };
-const MODULE_ORDER = ['verb', 'grammar', 'test', 'review'];
+const MODULE_ORDER = ['verb', 'grammar', 'learn', 'test', 'review'];
 
 let activeKey = 'verb';
 let mountEl  = null;
@@ -58,6 +59,14 @@ function renderModuleNav() {
       const c = State.get().modules.verb.mistakes.length +
                 State.get().modules.grammar.mistakes.length;
       if (c > 0) badge = `<span class="badge-count">${c}</span>`;
+    } else if (key === 'learn') {
+      // 復習中（learning 状态）卡片数
+      const lm = State.get().modules.learn;
+      let d = 0;
+      for (const id in lm.cards) {
+        if (lm.cards[id].status === 'learning') d++;
+      }
+      if (d > 0) badge = `<span class="badge-count">${d}</span>`;
     }
     b.innerHTML = `<span class="ja">${mod.label}</span><span class="en">${mod.labelEn}</span>${badge}`;
     b.addEventListener('click', () => switchModule(key));
@@ -112,6 +121,29 @@ function renderQuickRow() {
       chips.appendChild(b);
     });
     wrap.style.display = '';
+  } else if (activeKey === 'learn') {
+    wrap.innerHTML = `<span class="quick-label">Level</span><div class="quick-chips" id="quick-chips"></div>`;
+    const m = s.modules.learn;
+    const chips = document.getElementById('quick-chips');
+    ['N5','N4','N3','N2'].forEach(l => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'q-chip' + (m.levels[l] ? ' active' : '');
+      b.textContent = l;
+      b.dataset.val = l;
+      b.addEventListener('click', () => {
+        m.levels[l] = !m.levels[l];
+        b.classList.toggle('active', m.levels[l]);
+        const inner = document.querySelector(`#chip-learn-level [data-val="${l}"]`);
+        if (inner) inner.classList.toggle('active', m.levels[l]);
+        State.save();
+        const mod = MODULES.learn();
+        if (mod && mod.applyFilterChange) mod.applyFilterChange();
+        App.refreshStatus();
+      });
+      chips.appendChild(b);
+    });
+    wrap.style.display = '';
   } else {
     // review / test：无快速过滤
     wrap.style.display = 'none';
@@ -126,22 +158,23 @@ function renderSettings() {
   const sec = id => document.getElementById(id);
 
   // verb 部分
-  const verbSecs = ['sec-verb-level','sec-verb-type','sec-verb-conj'];
+  const verbSecs  = ['sec-verb-level','sec-verb-type','sec-verb-conj'];
   // grammar 部分
-  const gramSecs = ['sec-gram-group','sec-gram-mode'];
+  const gramSecs  = ['sec-gram-group','sec-gram-mode'];
+  // learn 部分
+  const learnSecs = ['sec-learn-level','sec-learn-group'];
 
-  if (activeKey === 'verb') {
-    verbSecs.forEach(id => { const el = sec(id); if (el) el.style.display = ''; });
-    gramSecs.forEach(id => { const el = sec(id); if (el) el.style.display = 'none'; });
-  } else if (activeKey === 'grammar') {
-    verbSecs.forEach(id => { const el = sec(id); if (el) el.style.display = 'none'; });
-    gramSecs.forEach(id => { const el = sec(id); if (el) el.style.display = ''; });
-  } else {
-    // review / test：不显示模块过滤区，只显示通用 UI toggles
-    // test 模块的题数 / 来源在卡片内的「設定」面板里配置；
-    // 试题池继承 verb / grammar 模块的筛选
-    [...verbSecs, ...gramSecs].forEach(id => { const el = sec(id); if (el) el.style.display = 'none'; });
-  }
+  const showSet = (
+    activeKey === 'verb'    ? verbSecs  :
+    activeKey === 'grammar' ? gramSecs  :
+    activeKey === 'learn'   ? learnSecs :
+    []
+  );
+  const allSecs = [...verbSecs, ...gramSecs, ...learnSecs];
+  allSecs.forEach(id => {
+    const el = sec(id); if (!el) return;
+    el.style.display = showSet.indexOf(id) >= 0 ? '' : 'none';
+  });
 
   // 动词部分 chips
   if (activeKey === 'verb') {
@@ -196,6 +229,56 @@ function renderSettings() {
       }, ([,v]) => v, ([k]) => k);
   }
 
+  // 学習部分 chips
+  if (activeKey === 'learn') {
+    const ml = s.modules.learn;
+    buildChips('chip-learn-level', ['N5','N4','N3','N2'],
+      l => ml.levels[l],
+      (l, span) => {
+        ml.levels[l] = !ml.levels[l];
+        span.classList.toggle('active', ml.levels[l]);
+        const q = document.querySelector(`#quick-chips [data-val="${l}"]`);
+        if (q) q.classList.toggle('active', ml.levels[l]);
+        State.save();
+        // 候选变了 → 重渲
+        const mod = MODULES.learn();
+        if (mod && mod.applyFilterChange) mod.applyFilterChange();
+        App.refreshStatus();
+      }, l => l, l => l);
+    buildChips('chip-learn-group',
+      (global.GRAMMAR_GROUPS || []).map(g => [g.id, g.label]),
+      ([k]) => ml.groups[k],
+      ([k], span) => {
+        ml.groups[k] = !ml.groups[k];
+        span.classList.toggle('active', ml.groups[k]);
+        State.save();
+        const mod = MODULES.learn();
+        if (mod && mod.applyFilterChange) mod.applyFilterChange();
+        App.refreshStatus();
+      }, ([,v]) => v, ([k]) => k);
+  }
+
+  // 「清空闪卡进度」按钮 — 只在 learn 模块显示
+  const lrb = document.getElementById('learn-reset-btn');
+  if (lrb) {
+    lrb.style.display = (activeKey === 'learn') ? '' : 'none';
+    if (!lrb._bound) {
+      lrb._bound = true;
+      lrb.addEventListener('click', () => {
+        if (!confirm('清空所有闪卡进度（已掌握 + 复习区）？该操作不可撤销。')) return;
+        const lm = State.get().modules.learn;
+        lm.cards = {};
+        lm.answered = 0;
+        lm.masteredCount = 0;
+        lm.learningCount = 0;
+        State.save();
+        const mod = MODULES.learn();
+        if (mod && mod.mount && mountEl) mod.mount(mountEl);
+        App.refreshStatus();
+      });
+    }
+  }
+
   // 通用 UI toggles
   const toggles = [
     { key: 'showExamples', label: '示例 / Examples',   desc: '答前显示用法说明与范例（动词模块）' },
@@ -225,7 +308,9 @@ function renderSettings() {
       tog.classList.toggle('on', s.ui[t.key]);
       row.setAttribute('aria-checked', s.ui[t.key] ? 'true' : 'false');
       State.save();
-      // 影响显示的开关需重渲当前模块
+      // 影响显示的开关需重渲当前模块。
+      // mistakeOnly 只影响 verb / grammar 的抽题来源，learn / test / review 不读它 —— 跳过 remount 避免无意义闪烁。
+      if (t.key === 'mistakeOnly' && activeKey !== 'verb' && activeKey !== 'grammar') return;
       const m = MODULES[activeKey]();
       if (m && m.mount && rootElCache()) {
         m.mount(rootElCache());
@@ -260,6 +345,19 @@ function refreshStatus() {
       <span class="sep">·</span>
       <span>誤 ${st.mistakes}</span>
     `;
+    return;
+  }
+  if (activeKey === 'learn') {
+    el.innerHTML = `
+      <span>新 ${st._new}</span>
+      <span class="sep">·</span>
+      <span>復 ${st._due}</span>
+      <span class="sep">·</span>
+      <span>習 ${st._mastered}</span>
+      <span class="sep">·</span>
+      <span>候 ${st._active}</span>
+    `;
+    renderModuleNav();
     return;
   }
   if (activeKey === 'test') {
@@ -377,8 +475,10 @@ function init() {
   document.getElementById('btn-settings').addEventListener('click', () => {
     openDialog('dlg-settings', renderSettings);
   });
-  bindDialog('dlg-settings', 'settings-close');
-  bindDialog('dlg-stats',    'stats-close');
+  bindDialog('dlg-settings',     'settings-close');
+  bindDialog('dlg-stats',        'stats-close');
+  bindDialog('dlg-learn-choice', 'choice-close');
+  bindDialog('dlg-learn-queue',  'queue-close');
   document.getElementById('reset-btn').addEventListener('click', () => {
     if (!confirm('确定重置所有进度（错题/统计/SRS权重）？该操作不可撤销。')) return;
     State.reset();
@@ -392,11 +492,17 @@ function init() {
 
   // 全局 Enter — 反馈后下一题；IME 转换中的 Enter 不应触发
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
+    if (e.isComposing || e.keyCode === 229) return;
     if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
     if (document.querySelector('dialog[open]')) return;
     const m = MODULES[activeKey]();
-    if (m && m.handleGlobalEnter && m.handleGlobalEnter()) e.preventDefault();
+    if (!m) return;
+    if (e.key === 'Enter') {
+      if (m.handleGlobalEnter && m.handleGlobalEnter()) e.preventDefault();
+      return;
+    }
+    // 学習モジュール 1/2 快捷键
+    if (m.handleGlobalKey && m.handleGlobalKey(e)) e.preventDefault();
   });
 
   // 首次渲染

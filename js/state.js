@@ -4,14 +4,20 @@
    ------------------------------------------------------------
    v4 数据结构：
    {
-     activeModule: 'verb' | 'grammar' | 'review',
+     activeModule: 'verb' | 'grammar' | 'learn' | 'test' | 'review',
      ui: { furigana, showZh, showExamples, mistakeOnly },
      modules: {
-       verb:    { levels, types, conjs, answered, correct, streak, byConj, byType, weight, mistakes },
-       grammar: { groups, modes,        answered, correct, streak, byGroup, byMode, weight, mistakes },
+       verb:    { levels, types, conjs, answered, correct, streak,
+                  byConj, byType, weight, mistakes },
+       grammar: { groups, modes,        answered, correct, streak,
+                  byGroup, byMode, weight, mistakes },
+       learn:   { groups, levels, cards{id→{status,weight}},
+                  answered, masteredCount, learningCount },
+       test:    { config{ count, sources{verb,grammar} }, lastResult },
      }
    }
-   - SRS-lite：错 → weight ×2 (cap 8)；对 → weight ÷2 (floor 0.25)
+   - SRS-lite (verb/grammar)：错 → weight ×2 (cap 8)；对 → weight ÷2 (floor 0.25)
+   - learn 弱 SRS：复习中"还不会" → weight ×2 (cap 8)；"已掌握" → 移出
    - mistakes 顶部插入，截 200 条
    ============================================================ */
 (function(global){
@@ -50,6 +56,19 @@ function defaultState() {
         },
         lastResult: null,
       },
+      learn: {
+        groups: Object.fromEntries((global.GRAMMAR_GROUPS || []).map(g => [g.id, true])),
+        levels: { N5:true, N4:true, N3:true, N2:true },
+        // cards[patternId] = { status, weight }
+        //   status: 'learning' | 'mastered'   (没见过的就不写)
+        //   weight: 抽题权重 — 答"还不会"时 ×2 (cap 8)，"已掌握"时清空
+        // 注：早期版本曾尝试 Ebbinghaus stage/due/lastReviewed，但 Web 端
+        // 无主动推送 + 跨设备不同步，时间间隔会塌成"积压式洪水"，已弃用。
+        cards: {},
+        answered: 0,
+        masteredCount: 0,
+        learningCount: 0,
+      },
     },
   };
 }
@@ -74,6 +93,7 @@ function mergeDefaults(loaded) {
     if (!out.modules[k].byMode)  out.modules[k].byMode  = {};
     if (!out.modules[k].weight)  out.modules[k].weight  = {};
     if (!out.modules[k].mistakes) out.modules[k].mistakes = [];
+    if (def.modules[k].cards && !out.modules[k].cards) out.modules[k].cards = {};
   }
   // test 子模块的嵌套 config / sources 单独深合并（结构与 verb/grammar 不同）
   const dt = def.modules.test;
@@ -83,6 +103,17 @@ function mergeDefaults(loaded) {
     lastResult: lt.lastResult || null,
   };
   out.modules.test.config.sources = Object.assign({}, dt.config.sources, (lt.config || {}).sources || {});
+  // learn 子模块：cards 由用户互动累积，持久化的 masteredCount / learningCount
+  // 可能因为外部清空 / schema 增加而与 cards 失同步。load 后立即重算一次，
+  // 让首次 render（如 nav badge / 状态条）不出现"有 cards 但计数为 0"。
+  const lc = out.modules.learn.cards || {};
+  let lrn = 0, mst = 0;
+  for (const id in lc) {
+    if (lc[id].status === 'learning') lrn++;
+    else if (lc[id].status === 'mastered') mst++;
+  }
+  out.modules.learn.learningCount = lrn;
+  out.modules.learn.masteredCount = mst;
   return out;
 }
 

@@ -93,13 +93,60 @@
       <div class="sec-title">題型 <span class="en">Question Type</span></div>
       <div class="chip-group" id="chip-mode"></div>
     </div>
+    <!-- learn 模块专用 -->
+    <div class="sheet-section" id="sec-learn-level">
+      <div class="sec-title">級 <span class="en">Level</span></div>
+      <div class="chip-group mono" id="chip-learn-level"></div>
+    </div>
+    <div class="sheet-section" id="sec-learn-group">
+      <div class="sec-title">機能 <span class="en">Function Group</span></div>
+      <div class="chip-group" id="chip-learn-group"></div>
+    </div>
     <!-- 共享 UI 选项 -->
     <div class="sheet-section">
       <div class="sec-title">表示 <span class="en">Display</span></div>
       <div id="toggles"></div>
     </div>
+    <button class="reset-btn" id="learn-reset-btn" style="display:none;">清空闪卡進度 · Reset Flashcards</button>
     <button class="reset-btn" id="reset-btn">重置進度 · Reset All</button>
   </div>
+</dialog>
+
+<!-- 回顾 · 选择窗（点「回顾」先到这里） -->
+<dialog class="sheet compact" id="dlg-learn-choice" aria-labelledby="choice-title">
+  <div class="sheet-grab"></div>
+  <div class="sheet-header">
+    <h2 id="choice-title">回顧 <span class="en">Review</span></h2>
+    <button class="icon-btn" id="choice-close" aria-label="关闭">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="choice-list">
+      <button class="choice-card primary" id="choice-start-review" type="button">
+        <div class="cc-ja">開始復習</div>
+        <div class="cc-zh">闪卡模式 · 抽未掌握的语法继续学，没有就出新卡</div>
+        <div class="cc-en">Start flashcard review</div>
+      </button>
+      <button class="choice-card" id="choice-view-history" type="button">
+        <div class="cc-ja">履歴を見る</div>
+        <div class="cc-zh">查看历史 · 浏览所有掌握 / 未掌握的语法</div>
+        <div class="cc-en">View history list</div>
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<!-- 历史清单 dialog（点「查看历史」后展开） -->
+<dialog class="sheet" id="dlg-learn-queue" aria-labelledby="queue-title">
+  <div class="sheet-grab"></div>
+  <div class="sheet-header">
+    <h2 id="queue-title">履歴 <span class="en">History</span></h2>
+    <button class="icon-btn" id="queue-close" aria-label="关闭">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" id="queue-body"></div>
 </dialog>
 
 <!-- 统计 dialog -->
@@ -127,6 +174,11 @@
 <script defer src="data/grammar-stance.js"></script>
 <script defer src="data/grammar-manner.js"></script>
 <script defer src="data/grammar-possibility.js"></script>
+<!-- 闪卡补全数据：N5 / N4 / N3 / N2 补遗 -->
+<script defer src="data/grammar-n5.js"></script>
+<script defer src="data/grammar-n4.js"></script>
+<script defer src="data/grammar-n3.js"></script>
+<script defer src="data/grammar-n2-extra.js"></script>
 <!-- Web 字体加载控制（Apple 跳过；其他平台等下一次页面变化时切换） -->
 <script defer src="js/fonts.js"></script>
 <!-- 引擎与共享 -->
@@ -136,6 +188,7 @@
 <!-- 各模块 -->
 <script defer src="js/module-verb.js"></script>
 <script defer src="js/module-grammar.js"></script>
+<script defer src="js/module-learn.js"></script>
 <script defer src="js/module-test.js"></script>
 <script defer src="js/module-review.js"></script>
 <!-- 编排器（最后） -->

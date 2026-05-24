@@ -1,8 +1,11 @@
 /* ============================================================
-   N2 文型数据 · 顶层壳
+   N5–N2 文型数据 · 顶层壳
    ------------------------------------------------------------
-   本文件只定义功能分组 (GRAMMAR_GROUPS)。
-   具体 patterns 由 data/grammar-<group-id>.js 多个文件并行 append。
+   本文件只定义 10 个功能分组 (GRAMMAR_GROUPS)。
+   具体 patterns 由两组文件 push 到 window.GRAMMAR：
+     - data/grammar-<group-id>.js — N2 完整数据（含 cloze / scramble）
+     - data/grammar-n5.js / -n4.js / -n3.js / -n2-extra.js — 闪卡补全
+       这些条目只含核心字段（无 cloze / scramble），文型测验模块自动跳过。
    ============================================================
    词条 schema:
    {

@@ -1134,7 +1134,11 @@ dialog.sheet::backdrop {
     inset: 50% auto auto 50%;
     width: 520px;
     max-width: calc(100vw - 32px);
-    height: auto;
+    /* 桌面端不能用 height:auto——会与 sheet-body { flex:1 1 0; min-height:0 }
+       配合塌成 header-only。固定显式高度。 */
+    height: 80vh;
+    height: 80dvh;
+    min-height: 360px;
     max-height: 80vh;
     max-height: 80dvh;
     border-radius: 12px;
@@ -1679,3 +1683,358 @@ dialog.sheet::backdrop {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================
+   学習モジュール (Ebbinghaus 闪卡)
+   ============================================================ */
+.learn-card .card-meta .no {
+  font-family: var(--font-display);
+  color: var(--vermillion);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: none;
+}
+.learn-progress {
+  display: flex; align-items: center; justify-content: center;
+  gap: 2px;
+  margin: -2px 0 22px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+.learn-progress .lp-cell {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 0 6px;
+}
+.learn-progress .lp-num {
+  font-family: var(--font-latin);
+  font-size: 14px;
+  color: var(--text);
+  font-feature-settings: "tnum" 1;
+}
+.learn-progress .lp-lab {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+}
+.learn-progress .lp-sep {
+  color: var(--text-faint);
+}
+
+.learn-front {
+  text-align: center;
+  padding: 18px 4px 6px;
+}
+.learn-front .target-row {
+  margin: 8px 0 18px;
+}
+.learn-stage {
+  font-family: var(--font-latin);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.learn-prompt {
+  margin: 28px 0 10px;
+  font-family: var(--font-body);
+  color: var(--text-3);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+.learn-actions.two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 22px;
+}
+.learn-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 12px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  border: 1px solid var(--rule);
+  background: var(--washi-2);
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+  font-family: var(--font-display);
+}
+.learn-btn:hover {
+  background: var(--washi-3);
+}
+.learn-btn:active { transform: translateY(1px); }
+.learn-btn .lb-ja {
+  font-size: 17px;
+  letter-spacing: 0.14em;
+}
+.learn-btn .lb-en {
+  font-family: var(--font-latin);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.learn-btn.fail {
+  border-color: var(--vermillion-border);
+  color: var(--vermillion);
+}
+.learn-btn.fail:hover {
+  background: var(--vermillion-bg);
+}
+.learn-btn.pass {
+  border-color: var(--jade-border);
+  color: var(--jade);
+}
+.learn-btn.pass:hover {
+  background: var(--jade-bg);
+}
+.learn-btn .lb-en { color: inherit; opacity: 0.65; }
+
+.reset-btn.small {
+  font-size: 12px;
+  padding: 8px 14px;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 480px) {
+  .learn-progress { font-size: 10px; gap: 0; flex-wrap: wrap; row-gap: 4px; }
+  .learn-progress .lp-cell { padding: 0 4px; }
+  .learn-btn .lb-ja { font-size: 15px; }
+  .learn-btn .lb-en { font-size: 9px; }
+}
+
+/* ============================================================
+   学習 · 回顾入口 + 回顾 dialog 列表
+   ============================================================ */
+.learn-card .card-meta .right {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.learn-queue-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  background: var(--washi-2);
+  border: 1px solid var(--rule);
+  padding: 3px 9px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.learn-queue-link:hover {
+  color: var(--vermillion);
+  border-color: var(--vermillion-border);
+  background: var(--vermillion-bg);
+}
+
+.empty-state .btn-link {
+  font-family: var(--font-latin);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--vermillion);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.14em;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--vermillion-border);
+}
+.empty-state .btn-link:hover { color: var(--vermillion-soft); }
+
+/* 回顾 dialog 内容 */
+.q-summary {
+  display: flex; align-items: baseline; gap: 14px;
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule-soft);
+  font-family: var(--font-body);
+  color: var(--text-2);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  flex-wrap: wrap;
+}
+.q-summary .q-sum-cell b {
+  font-family: var(--font-latin);
+  font-style: normal;
+  font-size: 16px;
+  color: var(--text);
+  font-feature-settings: "tnum" 1;
+  margin-right: 4px;
+}
+
+.q-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.q-row:last-child { border-bottom: none; }
+.q-row.overdue .q-due { color: var(--vermillion); font-weight: 500; }
+
+.q-main { flex: 1 1 auto; min-width: 0; }
+.q-pattern {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.q-meta {
+  display: flex; gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.q-meta .q-stage {
+  color: var(--text-3);
+  padding-left: 8px;
+  border-left: 1px solid var(--rule);
+}
+.q-meta .q-due {
+  color: var(--text-3);
+}
+.q-gloss {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+.q-actions {
+  display: flex; flex-direction: column; gap: 4px;
+  flex: 0 0 auto;
+}
+.q-act {
+  font-family: var(--font-body);
+  font-size: 11px;
+  background: var(--washi-2);
+  color: var(--text-2);
+  border: 1px solid var(--rule);
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  letter-spacing: 0.04em;
+}
+.q-act:hover {
+  color: var(--vermillion);
+  border-color: var(--vermillion-border);
+  background: var(--vermillion-bg);
+}
+.q-act.primary {
+  color: var(--vermillion);
+  border-color: var(--vermillion-border);
+}
+.q-act.primary:hover {
+  background: var(--vermillion);
+  color: var(--paper);
+  border-color: var(--vermillion);
+}
+
+.q-empty {
+  font-family: var(--font-body);
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 12px 0;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 480px) {
+  .q-row { flex-direction: column; }
+  .q-actions { flex-direction: row; align-self: stretch; }
+  .q-act { flex: 1 1 0; text-align: center; }
+}
+
+/* ============================================================
+   小型选择 dialog（回顾 → 选两路）
+   .sheet.compact 覆盖大 sheet 的 80dvh / 88dvh 固定高度
+   ============================================================ */
+dialog.sheet.compact {
+  height: auto;
+  min-height: 0;
+  max-height: 90dvh;
+}
+@media (min-width: 660px) {
+  dialog.sheet.compact {
+    width: 440px;
+    height: auto;
+    min-height: 0;
+  }
+}
+/* compact 内的 sheet-body 不再 flex grow，避免空白拉满 */
+dialog.sheet.compact .sheet-body {
+  flex: 0 0 auto;
+  padding-bottom: max(22px, env(safe-area-inset-bottom));
+}
+
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.choice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  padding: 18px 20px;
+  background: var(--washi-2);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.08s;
+  color: var(--text);
+}
+.choice-card:hover {
+  background: var(--washi-3);
+  border-color: var(--text-faint);
+}
+.choice-card:active { transform: translateY(1px); }
+.choice-card .cc-ja {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.14em;
+  color: var(--text);
+}
+.choice-card .cc-zh {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-2);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+.choice-card .cc-en {
+  font-family: var(--font-latin);
+  font-style: italic;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.choice-card.primary {
+  border-color: var(--vermillion-border);
+  background: var(--vermillion-bg);
+}
+.choice-card.primary .cc-ja { color: var(--vermillion); }
+.choice-card.primary:hover {
+  background: var(--vermillion);
+  border-color: var(--vermillion);
+}
+.choice-card.primary:hover .cc-ja { color: var(--paper); }
+.choice-card.primary:hover .cc-zh,
+.choice-card.primary:hover .cc-en { color: rgba(245, 240, 230, 0.78); }

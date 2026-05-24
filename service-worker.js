@@ -5,7 +5,7 @@
    外部资源（如 jsDelivr 字体）不拦截，浏览器自身能处理离线 fallback。
    每次发布请 bump CACHE_VERSION，activate 时会清理旧缓存。
    ============================================================ */
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `jp-reviewer-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -20,6 +20,7 @@ const APP_SHELL = [
   './js/ui-shared.js',
   './js/module-verb.js',
   './js/module-grammar.js',
+  './js/module-learn.js',
   './js/module-test.js',
   './js/module-review.js',
   './js/app.js',
@@ -35,6 +36,10 @@ const APP_SHELL = [
   './data/grammar-stance.js',
   './data/grammar-manner.js',
   './data/grammar-possibility.js',
+  './data/grammar-n5.js',
+  './data/grammar-n4.js',
+  './data/grammar-n3.js',
+  './data/grammar-n2-extra.js',
 ];
 
 self.addEventListener('install', event => {
